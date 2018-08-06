@@ -1,0 +1,81 @@
+---
+- hosts: jnodes 
+  user: vagrant 
+  become: yes 
+  vars:
+    description: "{{ ansible_hostname }}"
+  tasks:
+
+    - name: Copy Java
+      copy:
+        src: files/jdk-8u151-linux-x64.rpm
+        dest: /var/tmp/jdk-8u151-linux-x64.rpm
+
+    - name: install jdk
+      yum:
+        name: /var/tmp/jdk-8u151-linux-x64.rpm
+        state: present
+
+    - name: alternatives update
+      alternatives:
+        name: java
+        path: /usr/java/jdk1.8.0_151/jre/bin/java
+
+    - name: alternatives jar update
+      alternatives:
+        link: /etc/alternatives/jar
+        name: jar
+        path: /usr/java/jdk1.8.0_151/bin/jar
+
+    - name: alternavies javac 
+      alternatives:
+        link: /etc/alternatives/javac
+        name: javac
+        path: /usr/java/jdk1.8.0_151/bin/javac 
+    
+    - name: update local.rc
+      lineinfile:
+        dest: /etc/rc.local
+        line: "export JAVA_HOME=/usr/java/latest"
+        state: present
+
+    - name: Add jenkins repository
+      yum_repository:
+        name: jenkins
+        description: Jenkins Yum repo
+        baseurl: http://pkg.jenkins.io/redhat-stable
+        gpgkey: https://pkg.jenkins.io/redhat-stable/jenkins.io.key 
+        gpgcheck: yes
+
+    - name: Add jenkins package
+      yum:
+        name: jenkins-2.89.2-1.1
+        state: present
+      notify: restart jenkins
+
+    - name: create jenkins dir
+      file:
+        path: /var/lib/jenkins
+        state: directory
+    
+    - name: create jenkins group
+      group: 
+        name: jenkins
+        state: present
+    
+    - name: Create jenkins user on slave
+      user:
+        name: jenkins
+        home: /var/lib/jenkins
+        groups: jenkins
+        shell: /bin/bash
+
+  handlers:
+    - name: restart jenkins 
+      service: name=jenkins state=restarted
+
+
+      
+
+
+

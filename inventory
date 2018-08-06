@@ -1,0 +1,18 @@
+[all:vars]
+ansible_connection=ssh 
+ansible_ssh_user=vagrant 
+ansible_ssh_pass=vagrant
+ansible_ssh_common_args='-o StrictHostKeyChecking=no'
+
+
+[jnodes:children]
+jenkinsmaster
+jenkinsslaves
+
+[jenkinsmaster]
+Jenkins-1
+
+[jenkinsslaves]
+Jenkins-2
+Jenkins-3
+
