@@ -12,9 +12,9 @@
   2. Install ansible
   3. Install Vagrant 
 
-  Make up --> Will setup te vm environment
-  Make clean --> Will teardon the environment
-  Make test --> Will do a simple ansible tests
+  * Make up --> Will setup te vm environment
+  * Make clean --> Will teardon the environment
+  * Make test --> Will do a simple ansible tests
 
   hosts file info should be appended to /etc/hosts since I have not setup DNS.
 
