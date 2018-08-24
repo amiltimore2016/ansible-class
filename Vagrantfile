@@ -63,6 +63,30 @@ Vagrant.configure("2") do |config|
          lv.memory = $vm_memory
        end
 
+       config.vm.synced_folder ".", "/vagrant", type: "rsync", rsync__args: ['--verbose', '--archive', '--delete', '-z']
+
+       $shared_folders.each do |src, dst|
+         config.vm.synced_folder src, dst, type: "rsync", rsync__args: ['--verbose', '--archive', '--delete', '-z']
+       end
+
+       config.vm.provider :virtualbox do |vb|
+         vb.gui = $vm_gui
+         vb.memory = $vm_memory
+         vb.cpus = $vm_cpus
+       end
+
+       if $kube_node_instances_with_disks
+         # Libvirt
+         driverletters = ('a'..'z').to_a
+         config.vm.provider :libvirt do |lv|
+           # always make /dev/sd{a/b/c} so that CI can ensure that
+           # virtualbox and libvirt will have the same devices to use for OSDs
+           (1..$kube_node_instances_with_disks_number).each do |d|
+             lv.storage :file, :device => "hd#{driverletters[d]}", :path => "disk-#{i}-#{d}-#{DISK_UUID}.disk", :size => $kube_node_instances_with_disks_size, :bus => "ide"
+           end
+         end
+       end
+       
       ip = "#{$subnet}.#{i+100}"
       config.vm.network :private_network, ip: ip
       # Disable swap for each vm
