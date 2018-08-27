@@ -107,12 +107,13 @@ Vagrant.configure("2") do |config|
                 https://download.docker.com/linux/centos/docker-ce.repo
       SHELL
       config.vm.provision "shell", inline: <<-SHELL
-                sudo yum-config-manager --enable docker-ce-edge
+                sudo yum-config-manager --enable docker-ce-stable
                 sudo yum makecache fast
                 sudo yum remove -y docker-ce
                 sudo yum install -y  docker-ce
                 sudo systemctl enable docker
                 sudo systemctl start docker
+                docker run -d --restart=unless-stopped -p 80:80 -p 443:443 rancher/rancher:stable
       SHELL
     
     end
