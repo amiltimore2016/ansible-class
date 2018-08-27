@@ -1,5 +1,5 @@
 #!/bin/bash
-sudo yum-config-manager --enable docker-ce-edge
+sudo yum-config-manager --enable docker-ce-stable
 sudo yum makecache fast
 sudo yum remove -y docker-ce
 sudo yum install -y  docker-ce
