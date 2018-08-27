@@ -77,6 +77,13 @@ Vagrant.configure("2") do |config|
          vb.memory = $vm_memory
          vb.cpus = $vm_cpus
        end
+       
+       config.vm.provider "hyperv" do |vb|
+         vb.gui = $vm_gui
+         vb.memory = $vm_memory
+         vb.cpus = $vm_cpus 
+       end
+
 
        if $kube_node_instances_with_disks
          # Libvirt

@@ -8,7 +8,7 @@
   
   Using ansible, Vagrant and a Makefile we will setup a vm environment.
   
-  1. Install libvirt
+  1. Install libvirt/virtualbox/hyperv
   2. Install ansible
   3. Install Vagrant 
 
