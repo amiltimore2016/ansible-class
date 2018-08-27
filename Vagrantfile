@@ -43,7 +43,6 @@ $local_release_dir = "/vagrant/temp"
 
 $box = SUPPORTED_OS[$os][:box]
 
-ENV['VAGRANT_DEFAULT_PROVIDER'] = 'libvirt'
 
 
 
@@ -51,9 +50,11 @@ Vagrant.configure("2") do |config|
   config.ssh.insert_key = false
   config.vm.box = $box
   if Vagrant::Util::Platform.windows? then
+    ENV['VAGRANT_DEFAULT_PROVIDER'] = 'hyperv'
     myHomeDir = ENV["USERPROFILE"]
     config.vm.box = "centos/7"
   else
+    ENV['VAGRANT_DEFAULT_PROVIDER'] = 'libvirt'
     myHomeDir = "~"
     if SUPPORTED_OS[$os].has_key? :box_url
       config.vm.box_url = SUPPORTED_OS[$os][:box_url]
@@ -79,13 +80,11 @@ Vagrant.configure("2") do |config|
        end
 
        config.vm.provider :virtualbox do |vb|
-         vb.gui = $vm_gui
          vb.memory = $vm_memory
          vb.cpus = $vm_cpus
        end
 
        config.vm.provider "hyperv" do |vb|
-         vb.gui = $vm_gui
          vb.memory = $vm_memory
          vb.cpus = $vm_cpus
        end
