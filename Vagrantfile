@@ -50,8 +50,14 @@ ENV['VAGRANT_DEFAULT_PROVIDER'] = 'libvirt'
 Vagrant.configure("2") do |config|
   config.ssh.insert_key = false
   config.vm.box = $box
-  if SUPPORTED_OS[$os].has_key? :box_url
-    config.vm.box_url = SUPPORTED_OS[$os][:box_url]
+  if Vagrant::Util::Platform.windows? then
+    myHomeDir = ENV["USERPROFILE"]
+    config.vm.box = "centos/7"
+  else
+    myHomeDir = "~"
+    if SUPPORTED_OS[$os].has_key? :box_url
+      config.vm.box_url = SUPPORTED_OS[$os][:box_url]
+    end
   end
   config.ssh.username = SUPPORTED_OS[$os][:user]
   # plugin conflict
@@ -77,11 +83,11 @@ Vagrant.configure("2") do |config|
          vb.memory = $vm_memory
          vb.cpus = $vm_cpus
        end
-       
+
        config.vm.provider "hyperv" do |vb|
          vb.gui = $vm_gui
          vb.memory = $vm_memory
-         vb.cpus = $vm_cpus 
+         vb.cpus = $vm_cpus
        end
 
 
@@ -122,7 +128,7 @@ Vagrant.configure("2") do |config|
                 sudo systemctl start docker
                 docker run -d --restart=unless-stopped -p 80:80 -p 443:443 rancher/rancher:stable
       SHELL
-    
+
     end
   end
 end
