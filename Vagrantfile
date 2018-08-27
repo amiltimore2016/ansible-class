@@ -4,8 +4,11 @@
 require 'fileutils'
 Vagrant.require_version ">= 2.0.0"
 
+COMPOSER_BIN = File.join(File.dirname(__FILE__), "composer/docker-compose")
 CONFIG = File.join(File.dirname(__FILE__), "vagrant/config.rb")
 COREOS_URL_TEMPLATE = "https://storage.googleapis.com/%s.release.core-os.net/amd64-usr/current/coreos_production_vagrant.json"
+GPG_KEY_FILE = File.join(File.dirname(__FILE__), "vagrant-scripts/DOCKER-GPG-KEY")
+REDHAT_DOCKER = File.join(File.dirname(__FILE__), "vagrant-scripts/redhat_docker.sh")
 
 DISK_UUID = Time.now.utc.to_i
 
@@ -86,12 +89,32 @@ Vagrant.configure("2") do |config|
            end
          end
        end
-       
+
       ip = "#{$subnet}.#{i+100}"
       config.vm.network :private_network, ip: ip
       # Disable swap for each vm
       config.vm.provision "shell", inline: "sudo sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config"
       config.vm.provision "shell", inline: "sudo systemctl restart sshd"
+      if File.exist?(COMPOSER_BIN)
+         config.vm.provision :file, :source => "#{COMPOSER_BIN}", :destination => "/tmp/docker-compose"
+         config.vm.provision :shell, :inline => "mv /tmp/docker-compose /usr/local/bin/docker-compose", :privileged => true
+         config.vm.provision :shell, :inline => "chmod +x /usr/local/bin/docker-compose", :privileged => true
+       end
+       config.vm.provision "shell", inline: <<-SHELL
+                sudo yum install -y yum-utils
+                sudo yum-config-manager \
+                --add-repo \
+                https://download.docker.com/linux/centos/docker-ce.repo
+      SHELL
+      config.vm.provision "shell", inline: <<-SHELL
+                sudo yum-config-manager --enable docker-ce-edge
+                sudo yum makecache fast
+                sudo yum remove -y docker-ce
+                sudo yum install -y  docker-ce
+                sudo systemctl enable docker
+                sudo systemctl start docker
+      SHELL
+    
     end
   end
 end

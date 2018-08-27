@@ -1,0 +1,75 @@
+{
+  "AWSEBDockerrunVersion": 2,
+  "volumes": [
+    {
+      "name": "data-mount",
+      "host": {
+        "sourcePath": "/mnt/efs/data"
+      }
+    },
+    {
+      "name": "etc-mount",
+      "host": {
+        "sourcePath": "/mnt/efs/etc/kubernetes"
+      }
+    },
+    {
+      "name": "cert-ca",
+      "host": {
+        "sourcePath": "/var/app/current/certs/ggcloud-ca.crt"
+      }
+    },
+    {
+      "name": "cert-key",
+      "host": {
+        "sourcePath": "/var/app/current/certs/ggcloud-infra.key"
+      }
+    },
+    {
+      "name": "cert",
+      "host": {
+        "sourcePath": "/var/app/current/certs/ggcloud-infra.crt"
+      }
+    }
+  ],
+  "containerDefinitions": [
+    {
+      "name": "rancher",
+      "image": "rancher/rancher:stable",
+      "essential": true,
+      "memory": 3600,
+      "portMappings": [
+        {
+          "hostPort": 80,
+          "containerPort": 80
+        },
+        {
+          "hostPort": 443,
+          "containerPort": 443
+        }
+      ],
+      "mountPoints": [
+        {
+          "sourceVolume": "data-mount",
+          "containerPath": "/var/lib/rancher"
+        },
+        {
+          "sourceVolume": "etc-mount",
+          "containerPath": "/etc/kubernetes"
+        },
+        {
+          "sourceVolume": "cert-ca",
+          "containerPath": "/etc/rancher/ssl/cacerts.pem"
+        },
+        {
+          "sourceVolume": "cert-key",
+          "containerPath": "/etc/rancher/ssl/key.pem"
+        },
+        {
+          "sourceVolume": "cert",
+          "containerPath": "/etc/rancher/ssl/cert.pem"
+        }
+      ]
+    }
+  ]
+}
